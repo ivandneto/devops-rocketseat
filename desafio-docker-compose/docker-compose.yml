@@ -10,6 +10,11 @@ services:
       - fada-dados:/var/lib/postgresql                # nome:pasta, igual ao -v
     networks:
       - fada-network  
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   api:
     build: .                 # onde está o Dockerfile? (dica: a pasta atual)
@@ -21,7 +26,8 @@ services:
       DB_HOST: banco             # qual o nome do serviço do banco?
       DB_NAME: ${DB_NAME}
     depends_on:
-      - banco
+      banco:
+        condition: service_healthy
     networks:
       - fada-network
 
