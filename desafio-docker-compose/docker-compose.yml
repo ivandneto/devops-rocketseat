@@ -1,0 +1,34 @@
+services:
+
+  banco:                       # ← o --name vira o nome do serviço (e o hostname!)
+    image: postgres:18-alpine                 # a imagem do final do docker run
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - fada-dados:/var/lib/postgresql                # nome:pasta, igual ao -v
+    networks:
+      - fada-network  
+
+  api:
+    build: .                 # onde está o Dockerfile? (dica: a pasta atual)
+    ports:
+      - "8002:8000"
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: banco             # qual o nome do serviço do banco?
+      DB_NAME: ${DB_NAME}
+    depends_on:
+      - banco
+    networks:
+      - fada-network
+
+volumes:
+  fada-dados:
+    name: fada-dados                         # declara o volume (só o nome, e os dois pontos)
+
+networks:
+  fada-network:
+    name: fada-network                         # declara a rede (só o nome, e os dois pontos)
