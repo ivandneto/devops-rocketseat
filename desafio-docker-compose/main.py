@@ -49,27 +49,6 @@ def conectar():
 # Aqui ele cria as tabelas, se ainda não existirem.
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    with conectar() as conn:
-        # Tabela de pessoas: a CHAVE PRIMÁRIA é o id
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS pessoas (
-                id SERIAL PRIMARY KEY,      -- SERIAL = número automático (1, 2, 3...)
-                nome TEXT NOT NULL          -- NOT NULL = obrigatório
-            )""")
-        # Tabela de dentes: tem a própria chave primária
-        # e a CHAVE ESTRANGEIRA pessoa_id, que aponta para pessoas(id)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS dentes (
-                id SERIAL PRIMARY KEY,
-                pessoa_id INTEGER NOT NULL REFERENCES pessoas(id) ON DELETE CASCADE,
-                -- ON DELETE CASCADE: se apagar a pessoa, os dentes dela somem junto
-                data DATE NOT NULL,
-                arcada TEXT NOT NULL CHECK (arcada IN ('cima', 'baixo')),
-                -- CHECK: o banco só aceita 'cima' ou 'baixo'
-                qual_dente TEXT NOT NULL,
-                presente NUMERIC(6,2) DEFAULT 0
-                -- NUMERIC(6,2): número com 2 casas decimais (ex.: 5.50 de presente)
-            )""")
     yield  # daqui para baixo a API fica no ar, atendendo pedidos
 
 

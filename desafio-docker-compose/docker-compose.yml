@@ -6,8 +6,11 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-    volumes:
-      - fada-dados:/var/lib/postgresql                # nome:pasta, igual ao -v
+      FADA_APP_USER: ${FADA_APP_USER}      # extras: o script de inicialização lê estas
+      FADA_APP_PASSWORD: ${FADA_APP_PASSWORD}
+    volumes:                                        # ◄── 1. USAR (dentro do banco)
+          - fada-dados:/var/lib/postgresql              #     dados do banco
+          - ./db/init:/docker-entrypoint-initdb.d:ro    #     seu script (bind mount)
     networks:
       - fada-network  
     healthcheck:
@@ -21,8 +24,8 @@ services:
     ports:
       - "8002:8000"
     environment:
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
+      DB_USER: ${FADA_APP_USER}
+      DB_PASSWORD: ${FADA_APP_PASSWORD}
       DB_HOST: banco             # qual o nome do serviço do banco?
       DB_NAME: ${DB_NAME}
     depends_on:
@@ -33,7 +36,7 @@ services:
 
 volumes:
   fada-dados:
-    name: fada-dados                         # declara o volume (só o nome, e os dois pontos)
+    name: fada-dados                        # declara o volume (só o nome, e os dois pontos)
 
 networks:
   fada-network:
